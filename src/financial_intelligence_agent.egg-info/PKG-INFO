@@ -1,0 +1,100 @@
+Metadata-Version: 2.4
+Name: financial-intelligence-agent
+Version: 0.1.0
+Summary: Financial Intelligence Agentic System with Text2SQL, LangGraph orchestration, and MCP integration
+Author: Financial Analytics Team
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi>=0.111.0
+Requires-Dist: uvicorn[standard]>=0.30.0
+Requires-Dist: langgraph>=0.1.0
+Requires-Dist: langchain-core>=0.2.0
+Requires-Dist: langchain-community>=0.2.0
+Requires-Dist: pydantic>=2.7.0
+Requires-Dist: python-dotenv>=1.0.1
+Requires-Dist: sqlalchemy>=2.0.30
+Requires-Dist: snowflake-connector-python>=3.10.0
+Requires-Dist: boto3>=1.34.0
+Requires-Dist: pandas>=2.2.0
+Requires-Dist: tenacity>=8.2.0
+Requires-Dist: httpx>=0.27.0
+Requires-Dist: redis>=5.0.0
+Requires-Dist: orjson>=3.10.0
+Requires-Dist: cryptography>=42.0.0
+Requires-Dist: pyyaml>=6.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.2.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.23.7; extra == "dev"
+Requires-Dist: ruff>=0.5.0; extra == "dev"
+Requires-Dist: mypy>=1.10.0; extra == "dev"
+Requires-Dist: types-redis>=4.6.0; extra == "dev"
+Requires-Dist: types-requests>=2.32.0; extra == "dev"
+
+# Financial Intelligence Agentic System
+
+**Financial Intelligence Agentic System (FIAS)** bridges non-technical analysts and enterprise data warehouses such as Snowflake or Amazon Athena. Analysts express financial questions in natural language, and LangGraph-driven agents autonomously translate, validate, and visualize the answer—all while enforcing RBAC and preparing MCP-ready tooling.
+
+## Core Capabilities
+- **Autonomous Text2SQL:** Multi-attempt SQL generation with self-healing retries whenever executions fail.
+- **Dynamic Schema Discovery:** Snowflake/Athena-aware discovery layer with YAML fallback to keep agents aligned with real schemas.
+- **LangGraph Multi-Agent Flow:** Conductor coordinates generator, verifier, and visualization agents plus memory and audit feedback loops.
+- **Model Context Protocol Integration:** Schema and query tools expose the system to external LLM hosts using the MCP pattern.
+- **Security & Governance:** RBAC gatekeeping, column redaction hooks, audit trails, and configurable role whitelists.
+
+## Project Structure
+```
+├── src/fia_agent
+│   ├── app.py                # FastAPI wiring and dependency graph
+│   ├── agents/               # LangGraph conductor + specialized agents
+│   ├── services/             # Text2SQL, schema discovery, executors, security, memory
+│   ├── mcp/                  # Model Context Protocol tools and stub server
+│   └── data/sample_schema.yaml
+├── tests/
+├── .env.example
+└── pyproject.toml
+```
+
+## Getting Started
+1. **Install dependencies** (use a virtual environment):
+   ```bash
+   pip install -e .[dev]
+   ```
+2. **Configure environment variables:**
+   ```bash
+   cp .env.example .env
+   # Fill in Snowflake/Athena credentials or rely on mock execution
+   ```
+3. **Run the API:**
+   ```bash
+   fia-agent
+   # or python -m fia_agent.main
+   ```
+4. **Explore the API:**
+   - `POST /query` with `{ question, user_id, role }`
+   - `GET /schemas` to inspect live schema understanding
+   - `GET /audit` for recent activity
+
+## Testing & Quality
+```bash
+pytest
+```
+Optional format/lint:
+```bash
+ruff check .
+```
+
+## Extending the Agent
+- **Wire Real Warehouses:** Implement `SnowflakeClient.execute`/`describe` and `AthenaClient.execute`/`describe` to swap out the mock executor.
+- **LLM Upgrades:** Inject a LangChain-compatible model into `Text2SQLTranslator` for production-grade SQL reasoning.
+- **Memory Backends:** Replace the in-memory `MemoryManager` with Redis or Postgres for distributed state.
+- **MCP Hosting:** Implement an HTTP or WebSocket wrapper around `mcp.server.MCPServer` to register tools with your preferred orchestrator.
+
+## Security Considerations
+- Populate `ALLOWED_ROLES` and secrets inside `.env`.
+- Extend `RBACService.redact_columns` with dataset-specific policies.
+- Leverage the audit feed to stream logs into SIEM tooling.
+
+## Success Metrics
+- **SQL Accuracy:** Compare LangGraph output with curated gold SQL to track % correctness.
+- **Latency:** `QueryExecutionResult.latency_ms` powers dashboards targeting <5s responses.
+- **Self-Correction Rate:** `self_corrections` array records when autonomous fixes unblock analysts.

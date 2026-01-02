@@ -1,0 +1,2 @@
+[console_scripts]
+fia-agent = fia_agent.main:run

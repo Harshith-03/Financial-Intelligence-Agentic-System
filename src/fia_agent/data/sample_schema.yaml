@@ -1,0 +1,31 @@
+tables:
+  - name: financials_quarterly
+    description: Quarterly revenue, EBITDA, and segment level performance metrics.
+    columns:
+      - name: fiscal_quarter
+        type: STRING
+        description: Fiscal quarter in YYYY-Q format.
+      - name: revenue_usd
+        type: FLOAT
+        description: Reported revenue in USD.
+      - name: ebitda_usd
+        type: FLOAT
+        description: Reported EBITDA in USD.
+      - name: segment
+        type: STRING
+        description: Business segment name.
+      - name: geo
+        type: STRING
+        description: Reporting geography.
+  - name: guidance
+    description: Forward-looking guidance figures.
+    columns:
+      - name: fiscal_year
+        type: STRING
+        description: Fiscal year string
+      - name: revenue_low
+        type: FLOAT
+      - name: revenue_high
+        type: FLOAT
+      - name: updated_at
+        type: TIMESTAMP
